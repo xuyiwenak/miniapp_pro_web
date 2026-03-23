@@ -1,5 +1,9 @@
 import { useState } from 'react'
 
+interface NavbarProps {
+  onLoginClick?: () => void
+}
+
 const NAV_LINKS = [
   { label: '会员计划', href: '#membership', active: false },
   { label: '关于我们', href: '#about', active: false },
@@ -8,7 +12,7 @@ const NAV_LINKS = [
   { label: '首页', href: '#', active: true },
 ]
 
-export default function Navbar() {
+export default function Navbar({ onLoginClick }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -42,7 +46,8 @@ export default function Navbar() {
           fontWeight: 500,
         }}
           onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
-          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          onClick={e => { e.preventDefault(); onLoginClick?.() }}>
           登录
         </a>
         <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', color: '#fff', display: 'flex', alignItems: 'center' }}
