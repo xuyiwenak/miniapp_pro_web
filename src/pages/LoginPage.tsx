@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 interface Props {
   onBack: () => void
+  onLoginSuccess?: () => void
 }
 
 export default function LoginPage({ onBack }: Props) {
