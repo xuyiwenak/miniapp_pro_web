@@ -12,7 +12,7 @@ import ProtectedRoute from './pages/admin/ProtectedRoute'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
