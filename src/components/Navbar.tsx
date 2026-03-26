@@ -79,7 +79,7 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
             <ellipse cx="36" cy="52" rx="10" ry="7" fill="#7ed321" opacity="0.8" transform="rotate(-10 36 52)" />
             <ellipse cx="22" cy="50" rx="9" ry="6" fill="#4a90d9" opacity="0.8" transform="rotate(20 22 50)" />
             {/* Brand text overlay */}
-            <text x="6" y="38" fontFamily='"Ma Shan Zheng", serif' fontSize="12" fill="#fff" fontWeight="400">正念艺术</text>
+            <text x="6" y="38" fontFamily='"Ma Shan Zheng", serif' fontSize="12" fill="#fff" fontWeight="400">原色有感</text>
             <text x="8" y="52" fontFamily='"ZCOOL XiaoWei", serif' fontSize="9" fill="rgba(255,255,255,0.9)" letterSpacing="2">工作室</text>
           </svg>
         </a>

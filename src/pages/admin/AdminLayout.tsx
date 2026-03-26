@@ -47,7 +47,7 @@ export default function AdminLayout() {
           </div>
           <div>
             <p className="text-white font-semibold text-sm leading-tight" style={{ fontFamily: '"Ma Shan Zheng", serif', fontSize: '16px' }}>
-              正念艺术
+              原色有感
             </p>
             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>管理后台</p>
           </div>

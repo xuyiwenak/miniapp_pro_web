@@ -18,9 +18,9 @@ const COURSES = [
     level: '全程适合',
   },
   {
-    title: '正念笔触',
+    title: '笔触',
     subtitle: '冥想与艺术',
-    description: '放慢节奏，用有意识的笔触重新连接自我。每节课以正念呼吸练习开场，温柔疗愈。',
+    description: '放慢节奏，用有意识的笔触重新连接自我。每节课以呼吸练习开场，温柔疗愈。',
     gradient: 'linear-gradient(135deg, #0d2a58 0%, #1B3A6B 50%, #4DBFB4 80%)',
     accent: '#C8529A',
     sessions: '共 4 节课',
