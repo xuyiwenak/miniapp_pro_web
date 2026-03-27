@@ -85,7 +85,7 @@ export default function Hero() {
             marginBottom: '28px',
             fontWeight: 300,
           }}>
-            一个温暖的在线艺术工作室。<br />
+            一个温暖的在线艺术疗愈平台。<br />
             与学员一起，建立充满喜悦的可持续艺术创作习惯。
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>

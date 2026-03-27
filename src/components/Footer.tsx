@@ -55,7 +55,7 @@ export default function Footer() {
           color: 'rgba(255,255,255,0.35)',
           lineHeight: 1.7,
         }}>
-          © &amp; ® 原色有感工作室 · 版权所有 ·{' '}
+          © &amp; ® 原色有感艺术疗愈平台 · 版权所有 ·{' '}
           <a href="#" style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>隐私政策</a>
           {' '}· 包容即爱
         </p>
