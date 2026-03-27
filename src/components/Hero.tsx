@@ -1,42 +1,33 @@
 /**
- * Hero: Photo wall mosaic using actual artwork images + "MAKE ART, FEEL BETTER." tagline.
- * Layout: 2-row CSS grid mosaic — 3 images top row, 4 images bottom row.
+ * Hero: 2-row photo wall mosaic.
+ * Row 1 (tall): pencils×2col | baby×1col | botanical×1col
+ * Row 2 (short): animals×1col | hands×1col | wind×2col
  */
 
-// 8 images across 3 rows in a 4-column grid
-// Row 1: pencils(2col) | baby(1col) | botanical(1col)
-// Row 2: animals(2col) | hands(1col) | wind(1col)
-// Row 3: orange-flowers(2col) | mandala(2col)
-const ROWS = [
-  [
-    { src: '/images/b1.jpg', alt: 'Rainbow of sharpened colored pencils', cols: 2, rows: 1 },
-    { src: '/images/b2.jpg', alt: 'Baby drawing with crayons', cols: 1, rows: 1 },
-    { src: '/images/b3.png', alt: 'Soft watercolor botanical flowers', cols: 1, rows: 1 },
-  ],
-  [
-    { src: '/images/b4.jpg', alt: 'Colorful crayon drawing of animals', cols: 2, rows: 1 },
-    { src: '/images/b5.jpg', alt: 'Hands covered in colorful art writing', cols: 1, rows: 1 },
-    { src: '/images/b6.jpg', alt: 'Ink illustration of offshore wind turbines', cols: 1, rows: 1 },
-  ],
-  [
-    { src: '/images/b7.jpg', alt: 'Orange watercolor flowers with ink line art', cols: 2, rows: 1 },
-    { src: '/images/b8.png', alt: 'Hands coloring a mandala with colored pencils', cols: 2, rows: 1 },
-  ],
+// 确保 BASE 以 / 结尾，避免 /appimages/ 这种拼接错误
+const BASE = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const MOSAIC = [
+  { src: `${BASE}images/b1.jpg`, alt: '彩色铅笔特写', cols: 2 },
+  { src: `${BASE}images/b2.jpg`, alt: '儿童蜡笔涂鸦', cols: 1 },
+  { src: `${BASE}images/b3.png`, alt: '水彩植物花卉', cols: 1 },
+  { src: `${BASE}images/b4.jpg`, alt: '彩色动物插画', cols: 1 },
+  { src: `${BASE}images/b5.jpg`, alt: '双手触碰色彩', cols: 1 },
+  { src: `${BASE}images/b6.jpg`, alt: '水墨风车插画', cols: 2 },
 ]
 
 export default function Hero() {
   return (
     <section id="hero" style={{ background: '#f0ebe2', position: 'relative', overflow: 'hidden' }}>
-      {/* Photo wall mosaic — 3 rows, 4-column grid */}
+      {/* Photo wall — 2 rows, 4-column grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gridTemplateRows: '260px 240px 220px',
-        gap: '3px',
+        gridTemplateRows: '360px 280px',
+        gap: '4px',
         background: '#d8d0c8',
         lineHeight: 0,
       }}>
-        {ROWS.flat().map((img, i) => (
+        {MOSAIC.map((img, i) => (
           <div key={i} style={{ gridColumn: `span ${img.cols}`, overflow: 'hidden' }}>
             <img
               src={img.src}
@@ -46,9 +37,9 @@ export default function Hero() {
                 height: '100%',
                 objectFit: 'cover',
                 display: 'block',
-                transition: 'transform 0.5s ease',
+                transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
               }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
             />
           </div>
@@ -85,7 +76,7 @@ export default function Hero() {
             marginBottom: '28px',
             fontWeight: 300,
           }}>
-            一个温暖的在线艺术疗愈平台。<br />
+            一个温暖的疗愈作品工作室。<br />
             与学员一起，建立充满喜悦的可持续艺术创作习惯。
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>

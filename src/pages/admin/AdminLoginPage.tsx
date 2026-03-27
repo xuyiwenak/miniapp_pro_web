@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
               管理后台
             </h1>
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: '"Noto Sans SC", sans-serif' }}>
-              原色有感艺术疗愈平台 · Admin Panel
+              原色有感疗愈作品工作室 · Admin Panel
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export default function AdminLoginPage() {
             </button>
 
             <p className="text-center text-xs pt-2" style={{ color: '#bbb', fontFamily: '"Noto Sans SC", sans-serif' }}>
-              © 原色有感艺术疗愈平台管理系统
+              © 原色有感疗愈作品工作室管理系统
             </p>
           </form>
         </div>

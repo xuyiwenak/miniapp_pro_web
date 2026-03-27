@@ -157,7 +157,7 @@ export default function LoginPage({ onBack }: Props) {
             color: '#4DBFB4',
             letterSpacing: '0.08em',
             marginBottom: '2px',
-          }}>原色有感艺术疗愈平台</p>
+          }}>原色有感疗愈作品工作室</p>
           <div style={{ width: '36px', height: '2px', background: 'rgba(200,82,154,0.6)', borderRadius: '1px' }} />
         </div>
 
@@ -421,7 +421,7 @@ export default function LoginPage({ onBack }: Props) {
             marginTop: '48px',
             fontWeight: 300,
           }}>
-            © 原色有感艺术疗愈平台 · 版权所有
+            © 原色有感疗愈作品工作室 · 版权所有
           </p>
         </div>
       </div>

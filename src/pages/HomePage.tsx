@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
-import Courses from '../components/Courses'
 import Footer from '../components/Footer'
 import LoginPage from './LoginPage'
 
@@ -18,7 +17,6 @@ export default function HomePage() {
     <div style={{ minHeight: '100vh', background: '#fff' }}>
       <Navbar onLoginClick={() => setShowLogin(true)} />
       <Hero />
-      <Courses />
       <Footer />
     </div>
   )
