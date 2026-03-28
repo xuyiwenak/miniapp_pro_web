@@ -5,9 +5,35 @@ interface Props {
   onLoginSuccess?: () => void
 }
 
-export default function LoginPage({ onBack }: Props) {
+export default function LoginPage({ onBack, onLoginSuccess }: Props) {
   const [form, setForm] = useState({ username: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleLogin() {
+    if (!form.username || !form.password) {
+      setError('请输入用户名和密码')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/login/postPasswordLogin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account: form.username, password: form.password }),
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.message || '登录失败')
+      localStorage.setItem('admin_token', json.data.token)
+      onLoginSuccess?.()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '登录失败，请检查账号密码')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div style={{
@@ -322,6 +348,7 @@ export default function LoginPage({ onBack }: Props) {
                 }}
                 onFocus={e => (e.currentTarget.style.borderColor = '#4DBFB4')}
                 onBlur={e => (e.currentTarget.style.borderColor = '#e8edf5')}
+                onKeyDown={e => { if (e.key === 'Enter') handleLogin() }}
               />
               <button
                 onClick={() => setShowPassword(!showPassword)}
@@ -357,8 +384,26 @@ export default function LoginPage({ onBack }: Props) {
             </a>
           </div>
 
+          {/* 错误提示 */}
+          {error && (
+            <div style={{
+              marginBottom: '12px',
+              padding: '10px 14px',
+              background: '#fff0f0',
+              border: '1px solid #ffcdd2',
+              borderRadius: '4px',
+              fontFamily: '"Noto Sans SC", sans-serif',
+              fontSize: '13px',
+              color: '#c62828',
+            }}>
+              {error}
+            </div>
+          )}
+
           {/* 登录按钮 */}
           <button
+            onClick={handleLogin}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '14px',
@@ -370,16 +415,17 @@ export default function LoginPage({ onBack }: Props) {
               fontFamily: '"Noto Sans SC", sans-serif',
               fontWeight: 500,
               letterSpacing: '0.1em',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
               transition: 'background 0.2s, transform 0.1s',
               marginBottom: '16px',
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#3aada2')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#4DBFB4')}
-            onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.98)')}
-            onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+            onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#3aada2' }}
+            onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#4DBFB4' }}
+            onMouseDown={e => { if (!loading) e.currentTarget.style.transform = 'scale(0.98)' }}
+            onMouseUp={e => { if (!loading) e.currentTarget.style.transform = 'scale(1)' }}
           >
-            登 录
+            {loading ? '登录中...' : '登 录'}
           </button>
 
           {/* 分割线 */}
