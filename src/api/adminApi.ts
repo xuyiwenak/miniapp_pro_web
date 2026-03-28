@@ -108,6 +108,7 @@ export interface User {
   nickname: string
   level: number
   createdAt: string
+  healTodayUsage: number
 }
 
 export interface PageResult<T> {
@@ -128,6 +129,12 @@ export const getUsers = (params: { page?: number; limit?: number; search?: strin
 
 export const changeUserLevel = (userId: string, level: number) =>
   request(`/admin/users/${userId}/level`, { method: 'PATCH', body: JSON.stringify({ level }) })
+
+export const setUserHealUsage = (userId: string, usage: number) =>
+  request<{ userId: string; healTodayUsage: number }>(`/admin/users/${userId}/heal-usage`, {
+    method: 'PATCH',
+    body: JSON.stringify({ usage }),
+  })
 
 export const deleteUser = (userId: string) =>
   request(`/admin/users/${userId}`, { method: 'DELETE' })
