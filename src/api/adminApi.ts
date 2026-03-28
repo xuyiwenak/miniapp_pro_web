@@ -125,6 +125,7 @@ export interface Work {
   authorId: string
   title: string
   status: 'draft' | 'published'
+  featured?: boolean
   coverUrl?: string
   createdAt: string
 }
@@ -139,6 +140,9 @@ export const getWorks = (params: { page?: number; limit?: number; status?: strin
 
 export const updateWorkStatus = (workId: string, status: 'draft' | 'published') =>
   request(`/admin/works/${workId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
+
+export const updateWorkFeatured = (workId: string, featured: boolean) =>
+  request(`/admin/works/${workId}/featured`, { method: 'PATCH', body: JSON.stringify({ featured }) })
 
 export const deleteWork = (workId: string) =>
   request(`/admin/works/${workId}`, { method: 'DELETE' })

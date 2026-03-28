@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Trash2, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react'
-import { getWorks, updateWorkStatus, deleteWork, type Work } from '../../api/adminApi'
+import { Trash2, Eye, EyeOff, Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getWorks, updateWorkStatus, updateWorkFeatured, deleteWork, type Work } from '../../api/adminApi'
 
 export default function WorksPage() {
   const [list, setList] = useState<Work[]>([])
@@ -33,6 +33,16 @@ export default function WorksPage() {
     try {
       await updateWorkStatus(w.workId, next)
       flash(`✓ 已${next === 'published' ? '发布' : '下架'}`)
+      fetchData()
+    } catch (e) {
+      flash(`✗ ${e instanceof Error ? e.message : '操作失败'}`)
+    }
+  }
+
+  async function toggleFeatured(w: Work) {
+    try {
+      await updateWorkFeatured(w.workId, !w.featured)
+      flash(`✓ 已${w.featured ? '取消精选' : '设为精选'}`)
       fetchData()
     } catch (e) {
       flash(`✗ ${e instanceof Error ? e.message : '操作失败'}`)
@@ -85,7 +95,7 @@ export default function WorksPage() {
         <table className="w-full">
           <thead>
             <tr style={{ background: '#f9fafb' }}>
-              {['封面', '标题', '作者ID', '状态', '创建时间', '操作'].map(h => (
+              {['封面', '标题', '作者ID', '状态', '精选', '创建时间', '操作'].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -123,6 +133,16 @@ export default function WorksPage() {
                       : { background: '#f3f4f6', color: '#6b7280' }}>
                     {w.status === 'published' ? '已发布' : '草稿'}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  <button onClick={() => toggleFeatured(w)}
+                    title={w.featured ? '取消首页展示' : '设为首页展示'}
+                    className="p-1.5 rounded-lg transition-all"
+                    style={{ color: w.featured ? '#f59e0b' : '#d1d5db' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#fef9c3')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}>
+                    <Star size={15} fill={w.featured ? '#f59e0b' : 'none'} />
+                  </button>
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-400">
                   {w.createdAt ? new Date(w.createdAt).toLocaleDateString('zh-CN') : '—'}
