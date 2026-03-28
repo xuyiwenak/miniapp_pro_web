@@ -58,6 +58,20 @@ export interface Stats {
 
 export const getStats = () => request<Stats>('/admin/stats')
 
+// ── System Config ─────────────────────────────────────────────────────────────
+
+export interface SystemConfig {
+  healDailyLimit: number
+}
+
+export const getSystemConfig = () => request<SystemConfig>('/admin/system/config')
+
+export const updateSystemConfig = (config: Partial<SystemConfig>) =>
+  request<SystemConfig>('/admin/system/config', {
+    method: 'PATCH',
+    body: JSON.stringify(config),
+  })
+
 // ── System ────────────────────────────────────────────────────────────────────
 
 export interface SystemMetrics {

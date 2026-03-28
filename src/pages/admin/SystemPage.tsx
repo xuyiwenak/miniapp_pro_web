@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { RefreshCw, Cpu, MemoryStick, Clock, Server, Play, RotateCcw, Terminal, ChevronDown } from 'lucide-react'
+import { RefreshCw, Cpu, MemoryStick, Clock, Server, Play, RotateCcw, Terminal, ChevronDown, Settings } from 'lucide-react'
 import {
   getSystemMetrics, getContainers, getSystemLogs,
   restartContainer, deployBackend,
+  getSystemConfig, updateSystemConfig,
   type SystemMetrics, type Container,
 } from '../../api/adminApi'
 
@@ -121,6 +122,11 @@ export default function SystemPage() {
   const [restartingName, setRestartingName] = useState('')
   const [restartMsg, setRestartMsg] = useState('')
 
+  const [healLimit, setHealLimit] = useState<number>(3)
+  const [healLimitInput, setHealLimitInput] = useState<string>('3')
+  const [healLimitSaving, setHealLimitSaving] = useState(false)
+  const [healLimitMsg, setHealLimitMsg] = useState('')
+
   const [deploying, setDeploying] = useState(false)
   const [deployOutput, setDeployOutput] = useState('')
   const [deployError, setDeployError] = useState('')
@@ -164,6 +170,31 @@ export default function SystemPage() {
     const timer = setInterval(fetchMetrics, 30000)
     return () => clearInterval(timer)
   }, [fetchMetrics, fetchContainers])
+
+  useEffect(() => {
+    getSystemConfig().then(cfg => {
+      setHealLimit(cfg.healDailyLimit)
+      setHealLimitInput(String(cfg.healDailyLimit))
+    }).catch(() => {})
+  }, [])
+
+  async function handleSaveHealLimit() {
+    const n = parseInt(healLimitInput, 10)
+    if (isNaN(n) || n < 0) { setHealLimitMsg('✗ 请输入有效的非负整数'); return }
+    setHealLimitSaving(true)
+    setHealLimitMsg('')
+    try {
+      const cfg = await updateSystemConfig({ healDailyLimit: n })
+      setHealLimit(cfg.healDailyLimit)
+      setHealLimitInput(String(cfg.healDailyLimit))
+      setHealLimitMsg('✓ 已保存')
+    } catch (e) {
+      setHealLimitMsg(`✗ ${e instanceof Error ? e.message : '保存失败'}`)
+    } finally {
+      setHealLimitSaving(false)
+      setTimeout(() => setHealLimitMsg(''), 3000)
+    }
+  }
 
   async function handleRestart(name: string) {
     if (!confirm(`确认重启容器 ${name}？`)) return
@@ -217,6 +248,54 @@ export default function SystemPage() {
           onMouseLeave={e => (e.currentTarget.style.background = '#4DBFB4')}>
           <RefreshCw size={14} /> 刷新
         </button>
+      </div>
+
+      {/* ── App Config ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-100">
+          <Settings size={15} color="#1B3A6B" />
+          <h2 className="font-semibold text-sm" style={{ color: '#1B3A6B' }}>应用配置</h2>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-sm font-medium mb-0.5" style={{ color: '#1B3A6B' }}>AI 分析每日次数限制</p>
+              <p className="text-xs text-gray-400">普通用户每日可发起分析的最大次数，超级管理员不受限制。设为 0 表示禁用分析功能。</p>
+            </div>
+            <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+              {healLimitMsg && (
+                <span className="text-xs px-3 py-1 rounded-full"
+                  style={healLimitMsg.startsWith('✓')
+                    ? { background: '#dcfce7', color: '#16a34a' }
+                    : { background: '#fee2e2', color: '#dc2626' }}>
+                  {healLimitMsg}
+                </span>
+              )}
+              <span className="text-xs text-gray-400">当前：{healLimit} 次/天</span>
+              <input
+                type="number"
+                min={0}
+                value={healLimitInput}
+                onChange={e => setHealLimitInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSaveHealLimit()}
+                className="w-20 px-3 py-2 rounded-lg text-sm text-center outline-none"
+                style={{ border: '1.5px solid #e8edf5', color: '#1B3A6B' }}
+                onFocus={e => (e.currentTarget.style.borderColor = '#4DBFB4')}
+                onBlur={e => (e.currentTarget.style.borderColor = '#e8edf5')}
+              />
+              <button
+                onClick={handleSaveHealLimit}
+                disabled={healLimitSaving}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
+                style={{ background: healLimitSaving ? '#9ca3af' : '#4DBFB4', cursor: healLimitSaving ? 'not-allowed' : 'pointer' }}
+                onMouseEnter={e => { if (!healLimitSaving) e.currentTarget.style.background = '#3aada2' }}
+                onMouseLeave={e => { if (!healLimitSaving) e.currentTarget.style.background = '#4DBFB4' }}
+              >
+                {healLimitSaving ? '保存中...' : '保存'}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Metrics Cards ── */}
