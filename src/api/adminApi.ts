@@ -149,6 +149,7 @@ export interface Work {
   featured?: boolean
   coverUrl?: string
   createdAt: string
+  healingAnalyzed?: boolean
 }
 
 export const getWorks = (params: { page?: number; limit?: number; status?: string } = {}) => {

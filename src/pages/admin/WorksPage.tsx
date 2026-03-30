@@ -95,7 +95,7 @@ export default function WorksPage() {
         <table className="w-full">
           <thead>
             <tr style={{ background: '#f9fafb' }}>
-              {['封面', '标题', '作者ID', '状态', '精选', '创建时间', '操作'].map(h => (
+              {['封面', '标题', '作者ID', '状态', '分析', '精选', '创建时间', '操作'].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -104,7 +104,7 @@ export default function WorksPage() {
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <tr key={i} className="border-b border-gray-50">
-                  {[...Array(6)].map((_, j) => (
+                  {[...Array(8)].map((_, j) => (
                     <td key={j} className="px-4 py-3">
                       <div className="h-4 rounded" style={{ background: '#f3f4f6', width: j === 0 ? '40px' : '70%' }} />
                     </td>
@@ -112,7 +112,7 @@ export default function WorksPage() {
                 </tr>
               ))
             ) : list.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-400">暂无作品</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">暂无作品</td></tr>
             ) : list.map(w => (
               <tr key={w.workId} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3">
@@ -132,6 +132,14 @@ export default function WorksPage() {
                       ? { background: '#dcfce7', color: '#16a34a' }
                       : { background: '#f3f4f6', color: '#6b7280' }}>
                     {w.status === 'published' ? '已发布' : '草稿'}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    style={w.healingAnalyzed
+                      ? { background: '#ede9fe', color: '#7c3aed' }
+                      : { background: '#f3f4f6', color: '#9ca3af' }}>
+                    {w.healingAnalyzed ? '已分析' : '未分析'}
                   </span>
                 </td>
                 <td className="px-4 py-3">
