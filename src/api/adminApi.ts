@@ -1,5 +1,14 @@
 const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? ''
 
+export class ApiError extends Error {
+  code: number
+  constructor(code: number, message: string) {
+    super(message)
+    this.code = code
+    this.name = 'ApiError'
+  }
+}
+
 async function request<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
@@ -14,8 +23,17 @@ async function request<T = unknown>(
     },
   })
   const json = await resp.json()
-  if (!json.success) throw new Error(json.message ?? 'Request failed')
+  if (!json.success) throw new ApiError(json.code ?? resp.status, json.message ?? 'Request failed')
   return json.data as T
+}
+
+function buildQuery(params: Record<string, string | number | boolean | null | undefined>): string {
+  const q = new URLSearchParams()
+  for (const [key, val] of Object.entries(params)) {
+    if (val != null && val !== '') q.set(key, String(val))
+  }
+  const s = q.toString()
+  return s ? `?${s}` : ''
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -118,14 +136,8 @@ export interface PageResult<T> {
   list: T[]
 }
 
-export const getUsers = (params: { page?: number; limit?: number; search?: string; level?: number } = {}) => {
-  const q = new URLSearchParams()
-  if (params.page) q.set('page', String(params.page))
-  if (params.limit) q.set('limit', String(params.limit))
-  if (params.search) q.set('search', params.search)
-  if (params.level !== undefined) q.set('level', String(params.level))
-  return request<PageResult<User>>(`/admin/users?${q}`)
-}
+export const getUsers = (params: { page?: number; limit?: number; search?: string; level?: number } = {}) =>
+  request<PageResult<User>>(`/admin/users${buildQuery(params)}`)
 
 export const changeUserLevel = (userId: string, level: number) =>
   request(`/admin/users/${userId}/level`, { method: 'PATCH', body: JSON.stringify({ level }) })
@@ -152,13 +164,8 @@ export interface Work {
   healingAnalyzed?: boolean
 }
 
-export const getWorks = (params: { page?: number; limit?: number; status?: string } = {}) => {
-  const q = new URLSearchParams()
-  if (params.page) q.set('page', String(params.page))
-  if (params.limit) q.set('limit', String(params.limit))
-  if (params.status) q.set('status', params.status)
-  return request<PageResult<Work>>(`/admin/works?${q}`)
-}
+export const getWorks = (params: { page?: number; limit?: number; status?: string } = {}) =>
+  request<PageResult<Work>>(`/admin/works${buildQuery(params)}`)
 
 export const updateWorkStatus = (workId: string, status: 'draft' | 'published') =>
   request(`/admin/works/${workId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
@@ -181,13 +188,8 @@ export interface Feedback {
   createdAt: string
 }
 
-export const getFeedbackList = (params: { page?: number; limit?: number; status?: string } = {}) => {
-  const q = new URLSearchParams()
-  if (params.page) q.set('page', String(params.page))
-  if (params.limit) q.set('limit', String(params.limit))
-  if (params.status) q.set('status', params.status)
-  return request<PageResult<Feedback>>(`/admin/feedback?${q}`)
-}
+export const getFeedbackList = (params: { page?: number; limit?: number; status?: string } = {}) =>
+  request<PageResult<Feedback>>(`/admin/feedback${buildQuery(params)}`)
 
 export const updateFeedback = (id: string, update: { status?: string; reply?: string }) =>
   request(`/admin/feedback/${id}`, { method: 'PATCH', body: JSON.stringify(update) })

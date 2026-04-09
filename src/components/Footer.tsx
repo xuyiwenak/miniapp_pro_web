@@ -59,6 +59,35 @@ export default function Footer() {
           <a href="#" style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>隐私政策</a>
           {' '}· 包容即爱
         </p>
+
+        {/* 备案信息 */}
+        <p style={{
+          fontFamily: '"Noto Sans SC", sans-serif',
+          fontSize: '11px',
+          color: 'rgba(255,255,255,0.25)',
+          lineHeight: 1.8,
+          marginTop: '4px',
+        }}>
+          <a
+            href="https://beian.miit.gov.cn"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'rgba(255,255,255,0.25)', textDecoration: 'none', marginRight: '16px' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.25)')}>
+            京ICP备2026012130号
+          </a>
+          <a
+            href="https://beian.mps.gov.cn/#/query/webSearch?code=11010502059947"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'rgba(255,255,255,0.25)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.25)')}>
+            <img src="https://beian.mps.gov.cn/img/logo01.dd7ff50e.png" alt="公安备案" style={{ width: '14px', height: '14px', verticalAlign: 'middle' }} />
+            京公网安备11010502059947号
+          </a>
+        </p>
       </div>
     </footer>
   )
