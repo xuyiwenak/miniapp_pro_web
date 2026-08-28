@@ -42,6 +42,20 @@ export function verifySms(phone: string, code: string): Promise<AuthResult> {
   });
 }
 
+export function requestEmailLoginCode(email: string, locale: string): Promise<{ expiresInSeconds: number }> {
+  return apiRequest('/web-auth/email/send', {
+    method: 'POST',
+    body: JSON.stringify({ email, locale }),
+  });
+}
+
+export function verifyEmailLogin(email: string, code: string): Promise<AuthResult> {
+  return apiRequest('/web-auth/email/verify', {
+    method: 'POST',
+    body: JSON.stringify({ email, code }),
+  });
+}
+
 export function loginWithEmailPassword(email: string, password: string): Promise<AuthResult> {
   return apiRequest('/web-auth/email/password/login', {
     method: 'POST',

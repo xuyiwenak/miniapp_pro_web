@@ -3,15 +3,13 @@ import { LockKeyhole, X } from 'lucide-react';
 import type { Locale } from '../i18n/copy';
 import { COPY } from '../i18n/copy';
 import {
-  loginWithEmailPassword,
-  requestPasswordReset,
+  requestEmailLoginCode,
   requestSms,
-  resetEmailPassword,
+  verifyEmailLogin,
   verifySms,
 } from '../api/mandis';
 
 type LoginMethod = 'email' | 'phone';
-type EmailView = 'login' | 'reset';
 
 type LoginPageProps = {
   locale: Locale;
@@ -22,16 +20,7 @@ type LoginPageProps = {
 type EmailFormProps = {
   locale: Locale;
   isBusy: boolean;
-  onLogin: (email: string, password: string) => Promise<void>;
-  onShowReset: (email: string) => void;
-};
-
-type ResetFormProps = {
-  initialEmail: string;
-  locale: Locale;
-  isBusy: boolean;
-  onBack: () => void;
-  onReset: (email: string, code: string, password: string) => Promise<void>;
+  onLogin: (email: string, code: string) => Promise<void>;
   onSendCode: (email: string) => Promise<void>;
 };
 
@@ -42,13 +31,13 @@ type PhoneFormProps = {
   onSendCode: (phone: string) => Promise<void>;
 };
 
-function EmailLoginForm({ locale, isBusy, onLogin, onShowReset }: EmailFormProps) {
+function EmailLoginForm({ locale, isBusy, onLogin, onSendCode }: EmailFormProps) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
 
   function submit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    void onLogin(email, password);
+    void onLogin(email, code);
   }
 
   return (
@@ -66,102 +55,19 @@ function EmailLoginForm({ locale, isBusy, onLogin, onShowReset }: EmailFormProps
         />
       </label>
       <label>
-        {COPY[locale].passwordLabel}
-        <input
-          autoComplete="current-password"
-          minLength={8}
-          required
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-      </label>
-      <button className="login-text-action" type="button" onClick={() => onShowReset(email)}>
-        {COPY[locale].forgotOrSetPassword}
-      </button>
-      <button className="primary-button login-submit" disabled={isBusy} type="submit">
-        {isBusy ? COPY[locale].signingIn : COPY[locale].login}
-      </button>
-      <p className="login-method-hint">{COPY[locale].emailHint}</p>
-    </form>
-  );
-}
-
-function PasswordResetForm(props: ResetFormProps) {
-  const { initialEmail, locale, isBusy, onBack, onReset, onSendCode } = props;
-  const [email, setEmail] = useState(initialEmail);
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmation, setConfirmation] = useState('');
-  const passwordsMatch = password === confirmation;
-
-  function submit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    if (passwordsMatch) void onReset(email, code, password);
-  }
-
-  return (
-    <form className="login-form login-form--reset" onSubmit={submit}>
-      <button className="login-back-action" type="button" onClick={onBack}>
-        ← {COPY[locale].backToLogin}
-      </button>
-      <label>
-        {COPY[locale].emailLabel}
-        <input
-          autoComplete="email"
-          inputMode="email"
-          required
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </label>
-      <label>
         {COPY[locale].verificationCode}
         <span className="verification-row">
-          <input
-            autoComplete="one-time-code"
-            inputMode="numeric"
-            maxLength={6}
-            pattern="[0-9]{6}"
-            required
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-          />
+          <input autoComplete="one-time-code" inputMode="numeric" maxLength={6}
+            pattern="[0-9]{6}" required value={code} onChange={(event) => setCode(event.target.value)} />
           <button disabled={isBusy || !email} type="button" onClick={() => void onSendCode(email)}>
             {COPY[locale].sendCode}
           </button>
         </span>
       </label>
-      <div className="password-pair">
-        <label>
-          {COPY[locale].newPassword}
-          <input
-            autoComplete="new-password"
-            minLength={8}
-            required
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
-        <label>
-          {COPY[locale].confirmPassword}
-          <input
-            aria-invalid={Boolean(confirmation) && !passwordsMatch}
-            autoComplete="new-password"
-            minLength={8}
-            required
-            type="password"
-            value={confirmation}
-            onChange={(event) => setConfirmation(event.target.value)}
-          />
-        </label>
-      </div>
-      {!passwordsMatch && confirmation && <p className="field-error">{COPY[locale].passwordMismatch}</p>}
-      <button className="primary-button login-submit" disabled={isBusy || !passwordsMatch} type="submit">
-        {COPY[locale].setPassword}
+      <button className="primary-button login-submit" disabled={isBusy} type="submit">
+        {isBusy ? COPY[locale].signingIn : COPY[locale].login}
       </button>
+      <p className="login-method-hint">{locale === 'zh-CN' ? '使用邮箱验证码登录或注册' : 'Sign in or create an account with an email code'}</p>
     </form>
   );
 }
@@ -217,8 +123,6 @@ function PhoneLoginForm({ locale, isBusy, onLogin, onSendCode }: PhoneFormProps)
 export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [method, setMethod] = useState<LoginMethod>('email');
-  const [emailView, setEmailView] = useState<EmailView>('login');
-  const [resetEmail, setResetEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isBusy, setIsBusy] = useState(false);
 
@@ -237,7 +141,6 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
 
   function changeMethod(nextMethod: LoginMethod): void {
     setMethod(nextMethod);
-    setEmailView('login');
     setMessage('');
   }
 
@@ -253,9 +156,9 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
     }
   }
 
-  function completeEmailLogin(email: string, password: string): Promise<void> {
+  function completeEmailLogin(email: string, code: string): Promise<void> {
     return runAction(async () => {
-      await loginWithEmailPassword(email, password);
+      await verifyEmailLogin(email, code);
       onLogin();
     });
   }
@@ -267,9 +170,9 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
     });
   }
 
-  function sendResetCode(email: string): Promise<void> {
+  function sendEmailCode(email: string): Promise<void> {
     return runAction(async () => {
-      await requestPasswordReset(email, locale);
+      await requestEmailLoginCode(email, locale);
       setMessage(COPY[locale].codeSent);
     });
   }
@@ -279,20 +182,6 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
       await requestSms(phone);
       setMessage(COPY[locale].codeSent);
     });
-  }
-
-  function completePasswordReset(email: string, code: string, password: string): Promise<void> {
-    return runAction(async () => {
-      await resetEmailPassword(email, code, password);
-      setEmailView('login');
-      setMessage(COPY[locale].passwordUpdated);
-    });
-  }
-
-  function showPasswordReset(email: string): void {
-    setResetEmail(email);
-    setEmailView('reset');
-    setMessage('');
   }
 
   function closeFromBackdrop(event: MouseEvent<HTMLDivElement>): void {
@@ -312,13 +201,13 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
           <span>{locale === 'zh-CN' ? '从一幅画开始，' : 'Begin with one image.'}</span>
           <span>{locale === 'zh-CN' ? '慢慢看见自己。' : 'See yourself gently.'}</span>
         </p>
-        <section className={`login-panel${emailView === 'reset' ? ' login-panel--reset' : ''}`}>
+        <section className="login-panel">
           <button className="login-dialog__close" type="button" onClick={onClose}
             aria-label={locale === 'zh-CN' ? '关闭登录窗口' : 'Close sign-in dialog'}>
             <X aria-hidden="true" size={21} />
           </button>
           <h1 id="login-title">
-            {emailView === 'reset' ? COPY[locale].resetPasswordTitle : COPY[locale].loginTitle}
+            {COPY[locale].loginTitle}
           </h1>
           <p className="login-panel__subtitle">
             {locale === 'zh-CN' ? '继续你的创作与自我观察' : 'Continue creating and observing your inner world'}
@@ -344,22 +233,12 @@ export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
             </button>
           </div>
           <div className="login-panel__body" role="tabpanel">
-            {method === 'email' && emailView === 'login' && (
+            {method === 'email' && (
               <EmailLoginForm
                 isBusy={isBusy}
                 locale={locale}
                 onLogin={completeEmailLogin}
-                onShowReset={showPasswordReset}
-              />
-            )}
-            {method === 'email' && emailView === 'reset' && (
-              <PasswordResetForm
-                initialEmail={resetEmail}
-                isBusy={isBusy}
-                locale={locale}
-                onBack={() => setEmailView('login')}
-                onReset={completePasswordReset}
-                onSendCode={sendResetCode}
+                onSendCode={sendEmailCode}
               />
             )}
             {method === 'phone' && (
