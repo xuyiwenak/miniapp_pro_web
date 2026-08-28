@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './index.css';
 import './workspace.css';
 import { AUTH_SESSION_EXPIRED_EVENT } from './api/client';
@@ -106,6 +106,21 @@ function SessionRestoreScreen({ locale }: { locale: Locale }) {
   );
 }
 
+type PublicPortalProps = {
+  isAuthenticated: boolean;
+  locale: Locale;
+  onLocaleChange: (locale: Locale) => void;
+};
+
+function PublicPortal({ isAuthenticated, locale, onLocaleChange }: PublicPortalProps) {
+  return (
+    <>
+      <HomePage isAuthenticated={isAuthenticated} locale={locale} onLocaleChange={onLocaleChange} />
+      <Outlet />
+    </>
+  );
+}
+
 function ArtApp() {
   const [locale, setLocale] = useLocale();
   const [authStatus, setAuthStatus] = useSessionStatus();
@@ -121,13 +136,20 @@ function ArtApp() {
     navigate('/');
     void logoutWebSession().catch(() => undefined);
   };
+  const closeLogin = () => {
+    const state = location.state as { loginOverlay?: boolean } | null;
+    if (state?.loginOverlay) navigate(-1);
+    else navigate('/', { replace: true });
+  };
   const memberProps = { authStatus, locale, onLocaleChange: setLocale, onSignOut: signOut };
   return (
     <Routes>
-      <Route path="/" element={<HomePage isAuthenticated={authStatus === 'authenticated'}
-        locale={locale} onLocaleChange={setLocale} />} />
-      <Route path="/login" element={authStatus === 'authenticated' ? <Navigate to="/upload" replace /> :
-        <LoginPage locale={locale} onLocaleChange={setLocale} onLogin={finishLogin} />} />
+      <Route element={<PublicPortal isAuthenticated={authStatus === 'authenticated'}
+        locale={locale} onLocaleChange={setLocale} />}>
+        <Route index element={null} />
+        <Route path="/login" element={authStatus === 'authenticated' ? <Navigate to="/upload" replace /> :
+          <LoginPage locale={locale} onClose={closeLogin} onLogin={finishLogin} />} />
+      </Route>
       <Route path="/upload" element={<MemberArea {...memberProps} />} />
       <Route path="/reports" element={<MemberArea {...memberProps} />} />
       <Route path="/reports/:workId" element={<MemberArea {...memberProps} />} />

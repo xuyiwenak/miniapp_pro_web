@@ -13,7 +13,6 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/admin': backendUrl,
-        '/login': backendUrl,
         '/home': backendUrl,
         '/api': backendUrl,
         '/work': backendUrl,

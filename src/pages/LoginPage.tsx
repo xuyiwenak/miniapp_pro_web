@@ -1,9 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
+import { LockKeyhole, X } from 'lucide-react';
 import type { Locale } from '../i18n/copy';
 import { COPY } from '../i18n/copy';
-import { BrandMark } from '../components/BrandMark';
-import { LocaleToggle } from '../components/LocaleToggle';
-import { WatercolorBackdrop } from '../components/WatercolorBackdrop';
 import {
   loginWithEmailPassword,
   requestPasswordReset,
@@ -17,7 +15,7 @@ type EmailView = 'login' | 'reset';
 
 type LoginPageProps = {
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
+  onClose: () => void;
   onLogin: () => void;
 };
 
@@ -216,12 +214,26 @@ function PhoneLoginForm({ locale, isBusy, onLogin, onSendCode }: PhoneFormProps)
   );
 }
 
-export function LoginPage({ locale, onLocaleChange, onLogin }: LoginPageProps) {
+export function LoginPage({ locale, onClose, onLogin }: LoginPageProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [method, setMethod] = useState<LoginMethod>('email');
   const [emailView, setEmailView] = useState<EmailView>('login');
   const [resetEmail, setResetEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isBusy, setIsBusy] = useState(false);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.showModal();
+    document.body.classList.add('login-modal-open');
+    const focusFrame = window.requestAnimationFrame(() => dialog.querySelector('input')?.focus());
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.classList.remove('login-modal-open');
+      if (dialog.open) dialog.close();
+    };
+  }, []);
 
   function changeMethod(nextMethod: LoginMethod): void {
     setMethod(nextMethod);
@@ -283,18 +295,34 @@ export function LoginPage({ locale, onLocaleChange, onLogin }: LoginPageProps) {
     setMessage('');
   }
 
+  function closeFromBackdrop(event: MouseEvent<HTMLDivElement>): void {
+    if (event.target === event.currentTarget) onClose();
+  }
+
   return (
-    <WatercolorBackdrop>
-      <header className="login-header">
-        <BrandMark locale={locale} />
-        <LocaleToggle locale={locale} onChange={onLocaleChange} />
-      </header>
-      <main className="login-layout">
-        <p className="login-layout__whisper">
-          {locale === 'zh-CN' ? '回到自己的画里' : 'Return to your own art'}
+    <dialog ref={dialogRef} className="login-dialog" aria-labelledby="login-title"
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        onClose();
+      }}>
+      <div className="login-dialog__stage" onClick={closeFromBackdrop}>
+        <p className="login-dialog__whisper">
+          <span>{locale === 'zh-CN' ? '从一幅画开始，' : 'Begin with one image.'}</span>
+          <span>{locale === 'zh-CN' ? '慢慢看见自己。' : 'See yourself gently.'}</span>
         </p>
         <section className={`login-panel${emailView === 'reset' ? ' login-panel--reset' : ''}`}>
-          <h1>{emailView === 'reset' ? COPY[locale].resetPasswordTitle : COPY[locale].loginTitle}</h1>
+          <button className="login-dialog__close" type="button" onClick={onClose}
+            aria-label={locale === 'zh-CN' ? '关闭登录窗口' : 'Close sign-in dialog'}>
+            <X aria-hidden="true" size={21} />
+          </button>
+          <h1 id="login-title">
+            {emailView === 'reset' ? COPY[locale].resetPasswordTitle : COPY[locale].loginTitle}
+          </h1>
+          <p className="login-panel__subtitle">
+            {locale === 'zh-CN' ? '继续你的创作与自我观察' : 'Continue creating and observing your inner world'}
+          </p>
           <div className="login-tabs" role="tablist" aria-label={COPY[locale].loginTitle}>
             <button
               aria-selected={method === 'email'}
@@ -345,13 +373,13 @@ export function LoginPage({ locale, onLocaleChange, onLogin }: LoginPageProps) {
           </div>
           <p className="form-message" aria-live="polite">{message}</p>
           <p className="login-panel__legal">
-            <span aria-hidden="true">✓</span>
+            <LockKeyhole aria-hidden="true" size={16} />
             {locale === 'zh-CN'
-              ? '我已阅读并同意《用户协议》和《隐私政策》'
-              : 'I accept the Terms and Privacy Policy.'}
+              ? '你的作品与记录仅对你可见'
+              : 'Your artwork and records remain private to you.'}
           </p>
         </section>
-      </main>
-    </WatercolorBackdrop>
+      </div>
+    </dialog>
   );
 }

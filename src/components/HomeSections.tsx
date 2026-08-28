@@ -60,7 +60,9 @@ export function JourneySection({ locale }: { locale: Locale }) {
         </figure>
       </div>
       <div className="journey__action">
-        <Link className="primary-cta" to="/login">{copy.primaryAction}<ArrowRight size={18} /></Link>
+        <Link className="primary-cta" to="/login" preventScrollReset state={{ loginOverlay: true }}>
+          {copy.primaryAction}<ArrowRight size={18} />
+        </Link>
         <span><LockKeyhole size={15} />{copy.privateCue}</span>
       </div>
     </section>

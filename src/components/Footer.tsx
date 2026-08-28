@@ -24,7 +24,9 @@ export default function Footer({ locale, onLocaleChange }: FooterProps) {
       <section className="closing-cta">
         <ResponsiveImage className="closing-cta__art" name="b7" alt="" aria-hidden="true" />
         <p className="eyebrow">{copy.closingLabel}</p><h2>{copy.closingTitle}</h2>
-        <Link className="primary-cta" to="/login">{copy.primaryAction}<ArrowRight size={18} /></Link>
+        <Link className="primary-cta" to="/login" preventScrollReset state={{ loginOverlay: true }}>
+          {copy.primaryAction}<ArrowRight size={18} />
+        </Link>
         <p>{copy.closingBody}</p>
       </section>
       <div className="footer-grid">

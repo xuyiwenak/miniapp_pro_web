@@ -16,7 +16,9 @@ export default function Hero({ locale }: { locale: Locale }) {
         <p className="eyebrow home-hero__eyebrow">{copy.heroEyebrow}</p>
         <h1>{copy.heroTitle}</h1>
         <p className="home-hero__body">{copy.heroBody}</p>
-        <Link className="primary-cta" to="/login">{copy.primaryAction}<ArrowRight size={18} /></Link>
+        <Link className="primary-cta" to="/login" preventScrollReset state={{ loginOverlay: true }}>
+          {copy.primaryAction}<ArrowRight size={18} />
+        </Link>
       </div>
       <a className="scroll-cue" href="#philosophy"><ArrowDown size={16} /><span>{copy.scroll}</span></a>
     </section>

@@ -50,7 +50,8 @@ export default function Navbar({ isAuthenticated, locale, onLocaleChange }: Navb
             <span className={locale === 'zh-CN' ? 'is-active' : ''}>中</span><i>/</i>
             <span className={locale === 'en' ? 'is-active' : ''}>EN</span>
           </button>
-          <Link className="nav-login" to={isAuthenticated ? '/upload' : '/login'}>
+          <Link className="nav-login" to={isAuthenticated ? '/upload' : '/login'}
+            preventScrollReset state={isAuthenticated ? undefined : { loginOverlay: true }}>
             {isAuthenticated ? copy.enterStudio : copy.login}<ArrowUpRight size={16} />
           </Link>
           <button className="mobile-menu" type="button" aria-expanded={menuOpen}
