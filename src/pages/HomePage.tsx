@@ -1,23 +1,36 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar'
-import Hero from '../components/Hero'
-import Footer from '../components/Footer'
-import LoginPage from './LoginPage'
+import type { Locale } from '../i18n/copy';
+import Footer from '../components/Footer';
+import Hero from '../components/Hero';
+import {
+  GallerySection,
+  JourneySection,
+  KeywordRail,
+  PhilosophySection,
+  PrivacySection,
+  TherapySection,
+} from '../components/HomeSections';
+import Navbar from '../components/Navbar';
 
-export default function HomePage() {
-  const navigate = useNavigate()
-  const [showLogin, setShowLogin] = useState(false)
+type HomePageProps = {
+  isAuthenticated: boolean;
+  locale: Locale;
+  onLocaleChange: (locale: Locale) => void;
+};
 
-  if (showLogin) {
-    return <LoginPage onBack={() => setShowLogin(false)} onLoginSuccess={() => navigate('/')} />
-  }
-
+export default function HomePage({ isAuthenticated, locale, onLocaleChange }: HomePageProps) {
   return (
-    <div style={{ minHeight: '100vh', background: '#fff' }}>
-      <Navbar onLoginClick={() => setShowLogin(true)} />
-      <Hero />
-      <Footer />
+    <div className="home-page">
+      <Navbar isAuthenticated={isAuthenticated} locale={locale} onLocaleChange={onLocaleChange} />
+      <main>
+        <Hero locale={locale} />
+        <KeywordRail locale={locale} />
+        <PhilosophySection locale={locale} />
+        <JourneySection locale={locale} />
+        <TherapySection locale={locale} />
+        <GallerySection locale={locale} />
+        <PrivacySection locale={locale} />
+      </main>
+      <Footer locale={locale} onLocaleChange={onLocaleChange} />
     </div>
-  )
+  );
 }

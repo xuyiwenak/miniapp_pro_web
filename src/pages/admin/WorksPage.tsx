@@ -21,6 +21,8 @@ export default function WorksPage() {
       .finally(() => setLoading(false))
   }, [page, statusFilter])
 
+  // Existing admin loader intentionally updates local request state when filters change.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchData() }, [fetchData])
 
   function flash(msg: string) {

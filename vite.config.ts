@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    base: '/app',
+    base: '/',
     server: {
       proxy: {
         '/admin': backendUrl,
