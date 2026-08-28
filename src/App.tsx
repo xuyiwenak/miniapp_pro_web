@@ -17,6 +17,9 @@ import { ProfilePage } from './pages/ProfilePage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { UploadPage } from './pages/UploadPage';
+import { TodayPage } from './pages/TodayPage';
+import { GalleryPage } from './pages/GalleryPage';
+import { ExplorePage } from './pages/ExplorePage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
@@ -61,38 +64,20 @@ type MemberAreaProps = {
   authStatus: AuthStatus;
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
-  onSignOut: () => void;
 };
 
-function MemberArea({ authStatus, locale, onLocaleChange, onSignOut }: MemberAreaProps) {
+function MemberArea({ authStatus, locale, onLocaleChange }: MemberAreaProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   if (authStatus === 'checking') return <SessionRestoreScreen locale={locale} />;
   if (authStatus === 'anonymous') {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
-  async function submitArtwork(file: File, onProgress: (progress: ArtworkProgress) => void): Promise<void> {
-    const work = await publishArtwork(file, COOKIE_AUTH_TOKEN, (percent) => {
-      onProgress({ phase: 'uploading', percent });
-    });
-    onProgress({ phase: 'analyzing', percent: 0 });
-    await beginAnalysis(work.workId, COOKIE_AUTH_TOKEN);
-    await waitForAnalysis(work.workId, COOKIE_AUTH_TOKEN, (percent) => {
-      onProgress({ phase: 'analyzing', percent });
-    });
-    navigate(`/reports/${work.workId}`);
-  }
   return (
     <div className="app-frame">
-      <SideNav locale={locale} onSignOut={onSignOut} />
+      <SideNav locale={locale} />
       <div className="app-frame__content"><header className="workspace-header">
         <LocaleToggle locale={locale} onChange={onLocaleChange} />
-      </header><Routes>
-        <Route path="/upload" element={<UploadPage locale={locale} onSubmit={submitArtwork} />} />
-        <Route path="/reports" element={<ReportsPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
-        <Route path="/reports/:workId" element={<ReportDetailPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
-        <Route path="/profile" element={<ProfilePage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
-      </Routes></div>
+      </header><Outlet /></div>
     </div>
   );
 }
@@ -129,7 +114,7 @@ function ArtApp() {
   const finishLogin = () => {
     setAuthStatus('authenticated');
     const state = location.state as { from?: string } | null;
-    navigate(state?.from ?? '/upload', { replace: true });
+    navigate(state?.from ?? '/today', { replace: true });
   };
   const signOut = () => {
     setAuthStatus('anonymous');
@@ -141,19 +126,40 @@ function ArtApp() {
     if (state?.loginOverlay) navigate(-1);
     else navigate('/', { replace: true });
   };
-  const memberProps = { authStatus, locale, onLocaleChange: setLocale, onSignOut: signOut };
+  async function submitArtwork(
+    file: File,
+    description: string,
+    onProgress: (progress: ArtworkProgress) => void,
+  ): Promise<void> {
+    const work = await publishArtwork(file, description, COOKIE_AUTH_TOKEN, (percent) => {
+      onProgress({ phase: 'uploading', percent });
+    });
+    onProgress({ phase: 'analyzing', percent: 0 });
+    await beginAnalysis(work.workId, COOKIE_AUTH_TOKEN);
+    await waitForAnalysis(work.workId, COOKIE_AUTH_TOKEN, (percent) => {
+      onProgress({ phase: 'analyzing', percent });
+    });
+    navigate(`/reports/${work.workId}`);
+  }
+  const memberProps = { authStatus, locale, onLocaleChange: setLocale };
   return (
     <Routes>
       <Route element={<PublicPortal isAuthenticated={authStatus === 'authenticated'}
         locale={locale} onLocaleChange={setLocale} />}>
         <Route index element={null} />
-        <Route path="/login" element={authStatus === 'authenticated' ? <Navigate to="/upload" replace /> :
+        <Route path="/login" element={authStatus === 'authenticated' ? <Navigate to="/today" replace /> :
           <LoginPage locale={locale} onClose={closeLogin} onLogin={finishLogin} />} />
       </Route>
-      <Route path="/upload" element={<MemberArea {...memberProps} />} />
-      <Route path="/reports" element={<MemberArea {...memberProps} />} />
-      <Route path="/reports/:workId" element={<MemberArea {...memberProps} />} />
-      <Route path="/profile" element={<MemberArea {...memberProps} />} />
+      <Route element={<MemberArea {...memberProps} />}>
+        <Route path="/today" element={<TodayPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
+        <Route path="/upload" element={<UploadPage locale={locale} onSubmit={submitArtwork} />} />
+        <Route path="/gallery" element={<GalleryPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
+        <Route path="/explore" element={<ExplorePage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
+        <Route path="/reports" element={<ReportsPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
+        <Route path="/reports/:workId" element={<ReportDetailPage locale={locale} token={COOKIE_AUTH_TOKEN} />} />
+        <Route path="/profile" element={<ProfilePage locale={locale} token={COOKIE_AUTH_TOKEN}
+          onSignOut={signOut} />} />
+      </Route>
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />

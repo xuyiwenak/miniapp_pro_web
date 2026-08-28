@@ -20,6 +20,24 @@ export type ReportItem = {
   desc: string;
   dominantEmotionLabel: string;
   createdAt: string;
+  isPublic?: boolean;
+};
+
+export type WorkItem = {
+  workId: string;
+  desc: string;
+  tags: string[];
+  coverUrl: string;
+  status: "draft" | "published";
+  onWall: boolean;
+  createdAt: string;
+};
+
+export type PublicWorkItem = {
+  workId?: string;
+  url: string;
+  desc: string;
+  nickname?: string;
 };
 
 type AnalysisStatus = {
@@ -180,6 +198,7 @@ export function bindEmail(
 
 export function publishArtwork(
   file: File,
+  description: string,
   token: string,
   onProgress: (percent: number) => void,
 ): Promise<{ workId: string }> {
@@ -187,6 +206,7 @@ export function publishArtwork(
     apiUploadRequest(
       "/work/publish",
       {
+        desc: description,
         images: [{ name: file.name, type: file.type, data }],
         status: "published",
       },
@@ -194,6 +214,18 @@ export function publishArtwork(
       onProgress,
     ),
   );
+}
+
+export function listWorks(token: string): Promise<WorkItem[]> {
+  return apiRequest("/work/list?status=published", {}, token);
+}
+
+export function listPublicWorks(token: string): Promise<PublicWorkItem[]> {
+  return apiRequest("/home/cards", {}, token);
+}
+
+export function getTodayTip(token: string): Promise<{ content: string }> {
+  return apiRequest("/userTips/today", {}, token);
 }
 
 export function beginAnalysis(
@@ -245,10 +277,12 @@ export function listReports(token: string): Promise<ReportItem[]> {
 
 export type ReportDetail = ReportItem & {
   title?: string;
+  summary?: string;
   colorAnalysis?: string;
   compositionReport?: string;
-  lineAnalysis?: string;
+  lineAnalysis?: string | { interpretation?: string; style?: string };
   suggestion?: string;
+  keyColors?: string[];
 };
 
 export function getReport(
@@ -258,6 +292,21 @@ export function getReport(
   return apiRequest(
     `/healing/report?workId=${encodeURIComponent(workId)}`,
     {},
+    token,
+  );
+}
+
+export function updateReportPrivacy(
+  workId: string,
+  isPublic: boolean,
+  token: string,
+): Promise<{ workId: string; isPublic: boolean }> {
+  return apiRequest(
+    "/healing/privacy",
+    {
+      method: "POST",
+      body: JSON.stringify({ workId, isPublic }),
+    },
     token,
   );
 }

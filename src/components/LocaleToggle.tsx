@@ -1,3 +1,4 @@
+import { Languages } from 'lucide-react';
 import type { Locale } from '../i18n/copy';
 import { COPY } from '../i18n/copy';
 
@@ -10,7 +11,7 @@ export function LocaleToggle({ locale, onChange }: LocaleToggleProps) {
   const nextLocale: Locale = locale === 'zh-CN' ? 'en' : 'zh-CN';
   return (
     <button className="locale-toggle" type="button" onClick={() => onChange(nextLocale)}>
-      <span aria-hidden="true">◎</span>
+      <Languages aria-hidden="true" />
       {COPY[locale].language}
     </button>
   );

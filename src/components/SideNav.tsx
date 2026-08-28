@@ -1,44 +1,31 @@
 import { NavLink } from 'react-router-dom';
+import { Compass, Flower2, Images, NotebookPen, PieChart, UserRound } from 'lucide-react';
 import type { Locale } from '../i18n/copy';
-import { COPY } from '../i18n/copy';
 import { BrandMark } from './BrandMark';
 
-type SideNavProps = {
-  locale: Locale;
-  onSignOut: () => void;
-};
+type SideNavProps = { locale: Locale };
 
 const NAV_ITEMS = [
-  { to: '/upload', icon: '◌', key: 'begin' },
-  { to: '/reports', icon: '□', key: 'reports' },
-  { to: '/profile', icon: '◒', key: 'profile' },
-] as const;
+  { to: '/today', icon: Flower2, zh: '今天', en: 'Today' },
+  { to: '/upload', icon: NotebookPen, zh: '创作', en: 'Create' },
+  { to: '/gallery', icon: Images, zh: '画廊', en: 'Gallery' },
+  { to: '/explore', icon: Compass, zh: '探索', en: 'Explore' },
+  { to: '/reports', icon: PieChart, zh: '报告', en: 'Reports' },
+  { to: '/profile', icon: UserRound, zh: '我的', en: 'Me' },
+];
 
-export function SideNav({ locale, onSignOut }: SideNavProps) {
+export function SideNav({ locale }: SideNavProps) {
   return (
     <aside className="side-nav">
-      <BrandMark locale={locale} />
+      <div className="side-nav__brand"><BrandMark locale={locale} /><small>ORIGINAL SENSE</small></div>
       <nav className="side-nav__links" aria-label="Primary navigation">
-        {NAV_ITEMS.map(({ to, icon, key }) => (
-          <NavLink key={to} className="side-nav__link" to={to} end={to === '/upload'}>
-            <span aria-hidden="true">{icon}</span>
-            {COPY[locale][key]}
+        {NAV_ITEMS.map(({ to, icon: Icon, zh, en }) => (
+          <NavLink key={to} className="side-nav__link" to={to} end={to !== '/reports'}>
+            <Icon aria-hidden="true" />
+            {locale === 'zh-CN' ? zh : en}
           </NavLink>
         ))}
       </nav>
-      <div className="side-nav__account">
-        <div className="side-nav__avatar" aria-hidden="true">
-          小
-        </div>
-        <div>
-          <strong>小原</strong>
-          <span>Art keeper</span>
-        </div>
-      </div>
-      <button className="side-nav__signout" type="button" onClick={onSignOut}>
-        <span aria-hidden="true">↪</span>
-        {COPY[locale].signOut}
-      </button>
     </aside>
   );
 }

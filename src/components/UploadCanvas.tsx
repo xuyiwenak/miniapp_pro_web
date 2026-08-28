@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, RefObject } from 'react';
+import { ImagePlus, LockKeyhole } from 'lucide-react';
 import type { Locale } from '../i18n/copy';
 import { COPY } from '../i18n/copy';
 
@@ -13,7 +14,11 @@ export type ArtworkProgress = {
 
 type UploadCanvasProps = {
   locale: Locale;
-  onSubmit: (file: File, onProgress: (progress: ArtworkProgress) => void) => Promise<void>;
+  onSubmit: (
+    file: File,
+    description: string,
+    onProgress: (progress: ArtworkProgress) => void,
+  ) => Promise<void>;
 };
 
 type FilePickerProps = {
@@ -47,9 +52,8 @@ function FilePicker({ disabled, file, inputRef, locale, onSelect }: FilePickerPr
         disabled={disabled} onChange={handleChange} />
       <button className="upload-canvas__zone" type="button" disabled={disabled}
         onClick={() => inputRef.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={handleDrop}>
-        <span className="upload-canvas__icon" aria-hidden="true">▱</span>
+        <ImagePlus className="upload-canvas__icon" aria-hidden="true" />
         <strong>{file?.name ?? COPY[locale].dropzoneTitle}</strong>
-        <span>{COPY[locale].dropzoneHint}</span>
       </button>
     </>
   );
@@ -74,6 +78,8 @@ function ProgressFeedback({ locale, progress }: { locale: Locale; progress: Artw
 export function UploadCanvas({ locale, onSubmit }: UploadCanvasProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [title, setTitle] = useState('');
+  const [feeling, setFeeling] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<ArtworkProgress | null>(null);
   const isProcessing = progress !== null;
@@ -90,7 +96,7 @@ export function UploadCanvas({ locale, onSubmit }: UploadCanvasProps) {
     setError(null);
     setProgress({ phase: 'uploading', percent: 0 });
     try {
-      await onSubmit(file, setProgress);
+      await onSubmit(file, [title.trim(), feeling.trim()].filter(Boolean).join(' · '), setProgress);
     } catch {
       setProgress(null);
       setError(COPY[locale].processingError);
@@ -101,11 +107,24 @@ export function UploadCanvas({ locale, onSubmit }: UploadCanvasProps) {
   return (
     <section className="upload-canvas">
       <FilePicker disabled={isProcessing} file={file} inputRef={inputRef} locale={locale} onSelect={selectFile} />
+      <div className="upload-canvas__fields">
+        <label>
+          <span>{locale === 'zh-CN' ? '标题（可选）' : 'Title (optional)'}</span>
+          <input disabled={isProcessing} value={title} onChange={(event) => setTitle(event.target.value)} />
+        </label>
+        <label>
+          <span>{locale === 'zh-CN' ? '此刻的感受（可选）' : 'How this moment feels (optional)'}</span>
+          <input disabled={isProcessing} value={feeling} onChange={(event) => setFeeling(event.target.value)} />
+        </label>
+      </div>
       {progress && <ProgressFeedback locale={locale} progress={progress} />}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="primary-button" type="button" disabled={!file || isProcessing} onClick={submitFile}>
-        {isProcessing ? buttonLabel : COPY[locale].uploadButton}
-      </button>
+      <div className="upload-canvas__footer">
+        <span><LockKeyhole aria-hidden="true" />{locale === 'zh-CN' ? '仅自己可见' : 'Only you'}</span>
+        <button className="primary-button" type="button" disabled={!file || isProcessing} onClick={submitFile}>
+          {isProcessing ? buttonLabel : (locale === 'zh-CN' ? '保存并解读' : 'Save & reflect')}
+        </button>
+      </div>
     </section>
   );
 }
