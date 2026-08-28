@@ -1,4 +1,4 @@
-import { apiRequest, apiUploadRequest } from './client';
+import { apiRequest, apiUploadRequest } from "./client";
 
 const ANALYSIS_POLL_INTERVAL_MS = 1000;
 const ANALYSIS_TIMEOUT_MS = 3 * 60 * 1000;
@@ -23,126 +23,197 @@ export type ReportItem = {
 };
 
 type AnalysisStatus = {
-  status: 'none' | 'pending' | 'success' | 'failed';
+  status: "none" | "pending" | "success" | "failed";
   estimatedSeconds?: number;
   failReason?: string | null;
 };
 
-export function requestSms(phone: string): Promise<{ expiresInSeconds: number }> {
-  return apiRequest('/web-auth/sms/send', {
-    method: 'POST',
+export function requestSms(
+  phone: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest("/web-auth/sms/send", {
+    method: "POST",
     body: JSON.stringify({ phone }),
   });
 }
 
 export function verifySms(phone: string, code: string): Promise<AuthResult> {
-  return apiRequest('/web-auth/sms/verify', {
-    method: 'POST',
+  return apiRequest("/web-auth/sms/verify", {
+    method: "POST",
     body: JSON.stringify({ phone, code }),
   });
 }
 
-export function requestEmailLoginCode(email: string, locale: string): Promise<{ expiresInSeconds: number }> {
-  return apiRequest('/web-auth/email/send', {
-    method: 'POST',
+export function requestRegistrationEmailCode(
+  email: string,
+  locale: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest("/web-auth/email/register/send", {
+    method: "POST",
     body: JSON.stringify({ email, locale }),
   });
 }
 
-export function verifyEmailLogin(email: string, code: string): Promise<AuthResult> {
-  return apiRequest('/web-auth/email/verify', {
-    method: 'POST',
-    body: JSON.stringify({ email, code }),
+export function requestRegistrationPhoneCode(
+  phone: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest("/web-auth/phone/register/send", {
+    method: "POST",
+    body: JSON.stringify({ phone }),
   });
 }
 
-export function loginWithEmailPassword(email: string, password: string): Promise<AuthResult> {
-  return apiRequest('/web-auth/email/password/login', {
-    method: 'POST',
+type RegistrationInput = {
+  email: string;
+  emailCode: string;
+  password: string;
+  phone?: string;
+  phoneCode?: string;
+};
+
+export function registerWithEmail(
+  input: RegistrationInput,
+): Promise<AuthResult> {
+  return apiRequest("/web-auth/email/register", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function loginWithEmailPassword(
+  email: string,
+  password: string,
+): Promise<AuthResult> {
+  return apiRequest("/web-auth/email/password/login", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
-export function requestPasswordReset(email: string, locale: string): Promise<{ expiresInSeconds: number }> {
-  return apiRequest('/web-auth/email/password/reset/send', {
-    method: 'POST',
+export function requestPasswordReset(
+  email: string,
+  locale: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest("/web-auth/email/password/reset/send", {
+    method: "POST",
     body: JSON.stringify({ email, locale }),
   });
 }
 
-export function resetEmailPassword(email: string, code: string, password: string): Promise<{ reset: boolean }> {
-  return apiRequest('/web-auth/email/password/reset', {
-    method: 'POST',
+export function resetEmailPassword(
+  email: string,
+  code: string,
+  password: string,
+): Promise<{ reset: boolean }> {
+  return apiRequest("/web-auth/email/password/reset", {
+    method: "POST",
     body: JSON.stringify({ email, code, password }),
   });
 }
 
 export function getAuthProfile(token: string): Promise<AuthProfile> {
-  return apiRequest('/web-auth/profile', {}, token);
+  return apiRequest("/web-auth/profile", {}, token);
 }
 
 export function logoutWebSession(): Promise<{ signedOut: boolean }> {
-  return apiRequest('/web-auth/logout', { method: 'POST' });
+  return apiRequest("/web-auth/logout", { method: "POST" });
 }
 
-export function requestBoundPhone(phone: string, token: string): Promise<{ expiresInSeconds: number }> {
-  return apiRequest('/web-auth/profile/phone/send', {
-    method: 'POST',
-    body: JSON.stringify({ phone }),
-  }, token);
+export function requestBoundPhone(
+  phone: string,
+  token: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest(
+    "/web-auth/profile/phone/send",
+    {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    },
+    token,
+  );
 }
 
-export function bindPhone(phone: string, code: string, token: string): Promise<unknown> {
-  return apiRequest('/web-auth/profile/phone/bind', {
-    method: 'POST',
-    body: JSON.stringify({ phone, code }),
-  }, token);
+export function bindPhone(
+  phone: string,
+  code: string,
+  token: string,
+): Promise<unknown> {
+  return apiRequest(
+    "/web-auth/profile/phone/bind",
+    {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    },
+    token,
+  );
 }
 
-export function requestBoundEmail(email: string, locale: string, token: string): Promise<{ expiresInSeconds: number }> {
-  return apiRequest('/web-auth/profile/email/send', {
-    method: 'POST',
-    body: JSON.stringify({ email, locale }),
-  }, token);
+export function requestBoundEmail(
+  email: string,
+  locale: string,
+  token: string,
+): Promise<{ expiresInSeconds: number }> {
+  return apiRequest(
+    "/web-auth/profile/email/send",
+    {
+      method: "POST",
+      body: JSON.stringify({ email, locale }),
+    },
+    token,
+  );
 }
 
-export function bindEmail(email: string, code: string, token: string): Promise<unknown> {
-  return apiRequest('/web-auth/profile/email/bind', {
-    method: 'POST',
-    body: JSON.stringify({ email, code }),
-  }, token);
+export function bindEmail(
+  email: string,
+  code: string,
+  token: string,
+): Promise<unknown> {
+  return apiRequest(
+    "/web-auth/profile/email/bind",
+    {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    },
+    token,
+  );
 }
 
 export function publishArtwork(
   file: File,
   token: string,
-  onProgress: (percent: number) => void
+  onProgress: (percent: number) => void,
 ): Promise<{ workId: string }> {
   return readFileAsDataUrl(file).then((data) =>
     apiUploadRequest(
-      '/work/publish',
-      { images: [{ name: file.name, type: file.type, data }], status: 'published' },
+      "/work/publish",
+      {
+        images: [{ name: file.name, type: file.type, data }],
+        status: "published",
+      },
       token,
-      onProgress
-    )
+      onProgress,
+    ),
   );
 }
 
-export function beginAnalysis(workId: string, token: string): Promise<{ workId: string }> {
+export function beginAnalysis(
+  workId: string,
+  token: string,
+): Promise<{ workId: string }> {
   return apiRequest(
-    '/healing/analyze',
+    "/healing/analyze",
     {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ workId }),
     },
-    token
+    token,
   );
 }
 
 export async function waitForAnalysis(
   workId: string,
   token: string,
-  onProgress: (percent: number) => void
+  onProgress: (percent: number) => void,
 ): Promise<void> {
   const startedAt = Date.now();
   let estimateSeconds = DEFAULT_ANALYSIS_ESTIMATE_SECONDS;
@@ -150,17 +221,18 @@ export async function waitForAnalysis(
     const status = await apiRequest<AnalysisStatus>(
       `/healing/status?workId=${encodeURIComponent(workId)}`,
       {},
-      token
+      token,
     );
-    if (status.status === 'success') return onProgress(100);
-    if (status.status === 'failed') throw new Error(status.failReason ?? 'Analysis failed');
+    if (status.status === "success") return onProgress(100);
+    if (status.status === "failed")
+      throw new Error(status.failReason ?? "Analysis failed");
     estimateSeconds = status.estimatedSeconds ?? estimateSeconds;
     const elapsedMs = Date.now() - startedAt;
-    if (elapsedMs >= ANALYSIS_TIMEOUT_MS) throw new Error('Analysis timed out');
+    if (elapsedMs >= ANALYSIS_TIMEOUT_MS) throw new Error("Analysis timed out");
     const elapsedSeconds = elapsedMs / 1000;
     const percent = Math.min(
       MAX_PENDING_ANALYSIS_PERCENT,
-      Math.round((elapsedSeconds / estimateSeconds) * 100)
+      Math.round((elapsedSeconds / estimateSeconds) * 100),
     );
     onProgress(percent);
     await delay(ANALYSIS_POLL_INTERVAL_MS);
@@ -168,7 +240,7 @@ export async function waitForAnalysis(
 }
 
 export function listReports(token: string): Promise<ReportItem[]> {
-  return apiRequest('/healing/list', {}, token);
+  return apiRequest("/healing/list", {}, token);
 }
 
 export type ReportDetail = ReportItem & {
@@ -179,15 +251,22 @@ export type ReportDetail = ReportItem & {
   suggestion?: string;
 };
 
-export function getReport(workId: string, token: string): Promise<ReportDetail> {
-  return apiRequest(`/healing/report?workId=${encodeURIComponent(workId)}`, {}, token);
+export function getReport(
+  workId: string,
+  token: string,
+): Promise<ReportDetail> {
+  return apiRequest(
+    `/healing/report?workId=${encodeURIComponent(workId)}`,
+    {},
+    token,
+  );
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error('Could not read image file'));
+    reader.onerror = () => reject(new Error("Could not read image file"));
     reader.readAsDataURL(file);
   });
 }
