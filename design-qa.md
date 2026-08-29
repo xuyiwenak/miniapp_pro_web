@@ -1,89 +1,63 @@
-# Design QA — Authenticated workspace
+# Gallery redesign QA
 
 ## Evidence
 
-- Source visual truth:
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-0ac019b1-500f-4d67-b119-5bbb79c29cd8.png`
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-67226f0c-bc85-4dbe-9f13-4f014694874a.png`
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-671177f7-ec4d-4cfd-add5-13a932a01151.png`
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-9b78ad80-ec41-4d83-990f-6b8e891350d6.png`
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-033fdb84-25b6-4b6f-8d8f-1d5f5230c402.png`
-  - `/Users/evan/.codex/generated_images/01a0479d-1a4c-7941-9ce4-96a52f4c1333/exec-760bb221-a1a3-4ab8-b8c3-52a830d6381a.png`
-- Browser-rendered implementation screenshots:
-  - `/tmp/original-sense-qa/final-today.png`
-  - `/tmp/original-sense-qa/final-create.png`
-  - `/tmp/original-sense-qa/final-gallery.png`
-  - `/tmp/original-sense-qa/final-explore.png`
-  - `/tmp/original-sense-qa/final-report.png`
-  - `/tmp/original-sense-qa/final-profile.png`
-  - `/tmp/original-sense-qa/today-mobile.png`
-- Same-input comparisons:
-  - `/tmp/original-sense-qa/compare-today.png`
-  - `/tmp/original-sense-qa/compare-gallery.png`
-  - `/tmp/original-sense-qa/compare-report.png`
-- Desktop viewport: 1536 × 1024 CSS px, device pixel ratio 1.
-- Mobile viewport: 390 × 844 CSS px, device pixel ratio 1.
-- Source and desktop implementation pixels: 1536 × 1024. Comparison copies were equally normalized to
-  768 × 512 per side before horizontal composition.
-- State: authenticated, Simplified Chinese, realistic mocked private/public artwork data.
+- Source visual truth: `/tmp/original-sense-gallery-qa/gallery-design-reference.png`
+- Final desktop implementation: `/tmp/original-sense-gallery-qa/gallery-implementation-desktop-final.png`
+- Mobile implementation: `/tmp/original-sense-gallery-qa/gallery-implementation-mobile.png`
+- Normalized side-by-side comparison: `/tmp/original-sense-gallery-qa/gallery-comparison.png`
+- Route and state: `/gallery`, authenticated, six representative August works
+- Desktop CSS viewport: 1664 × 946 px; device pixel ratio: 2
+- Source pixels: 1662 × 946 px
+- Implementation capture pixels: 1649 × 937 px after browser scrollbar exclusion
+- Comparison normalization: both desktop images scaled to 1664 × 946 px before horizontal composition
+- Mobile CSS viewport: 390 × 844 px
+- Mobile capture pixels: 375 × 812 px after browser chrome and scrollbar exclusion
 
 ## Findings
 
-- No actionable P0, P1, or P2 visual differences remain.
-- Fonts and typography: editorial Chinese serif headings, restrained sans-serif controls, hierarchy, wrapping, and
-  line height match the selected direction. The implementation uses system serif fallbacks where the generated mock
-  cannot provide an exact licensed font file.
-- Spacing and layout rhythm: the cream sidebar, hairline header, wide content canvas, sparse sections, four-column
-  gallery, three-column exhibition, split report, and single-column settings rhythm match the source structure.
-- Colors and visual tokens: cream paper, deep navy copy, teal active states, quiet dividers, and rose danger state are
-  consistently mapped through the workspace tokens with accessible contrast.
-- Image quality and asset fidelity: all artwork is rendered from the project's optimized `b1`–`b8` WebP assets with
-  `object-fit` crops. This intentionally replaces the conceptual watercolor images in the generated mock because the
-  product requirement was to reuse the owned server artwork.
-- Copy and content: each route has one clear purpose. Repeated explanatory copy and duplicated calls to action were
-  removed; private-by-default language is explicit.
-- Focused comparison: the sidebar/navigation, Today action row, gallery image grid, and report split were inspected in
-  the side-by-side composites. Icons, dividers, privacy signals, and text density remain readable at the normalized
-  size, so additional crops were not required.
+- Fonts and typography: passed. The implementation preserves the Song/Kaiti-inspired hierarchy, restrained weights,
+  navy text, handwritten captions, and legible metadata. The system font fallback is intentional and consistent with
+  the existing product.
+- Spacing and layout rhythm: passed. The page retains the narrow sidebar and header, while the wall uses one framed
+  anchor work, clipped supporting works, two notes, generous negative space, and restrained rotation. Dynamic work
+  counts may make the live wall sparser than the six-work QA state; this is expected product behavior.
+- Colors and visual tokens: passed. Existing navy and teal tokens remain intact. Ivory paper, muted yellow, and dusty
+  pink match the approved mock without introducing conflicting saturated accents.
+- Image quality and asset fidelity: passed. Artwork uses real cover images. The acrylic clip, masking tape, and paper
+  texture are raster assets produced for the selected design, resized for web delivery, and rendered without visible
+  halos or stretching.
+- Copy and content: passed. Title, subtitle, month, work count, artwork descriptions, dates, privacy labels, and empty
+  state remain meaningful and localized.
+- Accessibility and interaction: passed. Search, public-only filter, and compact-grid controls expose accessible names
+  and pressed states. Keyboard focus rules remain inherited from the product. Decorative clip and tape assets are
+  hidden from assistive technology. Reduced-motion rules disable transitions.
+- Responsiveness: passed. At 390 px, navigation becomes the existing bottom bar, the featured work spans both columns,
+  supporting works remain readable, and no horizontal overflow occurs.
+
+Focused comparison was not required: the source and desktop implementation use the same full-page viewport, and the
+individual native-size captures preserve readable title, toolbar, card, clip, tape, caption, and privacy-icon details.
+
+## Interaction verification
+
+- Search narrowed six works to one matching result.
+- Clearing search restored all six works.
+- Public-only filter reduced the set to four public works.
+- Compact view toggled to `aria-pressed="true"` and removed decorative notes.
+- Browser console errors: none.
 
 ## Comparison history
 
-1. P0 — member route shells rendered without route content.
-   - Fix: replaced descendant absolute `Routes` with one pathless authenticated layout and nested route `Outlet`.
-   - Post-fix evidence: all six final route screenshots render their main content; the clean browser tab reports no
-     console errors or warnings.
-2. P2 — filter, grid, join-theme, privacy preference, like, and response controls included non-functional chrome.
-   - Fix: added working search/filter/grid states, upload navigation, local like state, response editor, and persisted
-     private-default preference.
-   - Post-fix evidence: browser interaction checks returned filtered/pressed states, one visible response textarea,
-     and privacy `aria-pressed` changing from `true` to `false`.
-3. P2 — text glyphs were used for the brand accent and language control, and the report could omit its third
-   observation when composition data was unavailable.
-   - Fix: replaced glyphs with library icons and added the report summary as the safe Space observation fallback.
-   - Post-fix evidence: final Today and Report captures show the icon treatment and three observation rows.
-
-## Primary interactions tested
-
-- Navigate across Today, Create, Gallery, Explore, Reports, and Profile.
-- Open and fill gallery search; toggle public-only filter and compact grid.
-- Join the monthly theme through the upload route.
-- Toggle a public artwork like.
-- Open the report response editor.
-- Toggle and persist private-by-default preference.
-- Confirm mobile bottom navigation and no horizontal overflow at 390 px.
-- Browser console checked in a fresh tab: no errors or warnings.
+1. Initial implementation showed a third grid row at desktop width, leaving the final artwork below the approved
+   composition. Classified P2 because the above-the-fold density differed from the mock.
+2. Changed the wall from 12 to 16 tracks, increased the featured span to five tracks, and positioned the secondary
+   note independently. The final capture keeps all six representative works within the intended two-row composition.
+3. Rechecked the final desktop capture against the source in the normalized comparison; no actionable P0, P1, or P2
+   differences remain. Remaining differences in artwork subjects and live item count are data-driven and expected.
 
 ## Follow-up polish
 
-- P3: when original community artwork grows, replace the current fixed exhibition slice with curated pagination.
-- P3: persist likes and report self-responses through dedicated backend endpoints when that product scope is approved.
-
-## Implementation checklist
-
-- [x] Six focused authenticated routes implemented.
-- [x] Desktop and mobile navigation implemented.
-- [x] Private-by-default creation and explicit public sharing represented.
-- [x] Existing project artwork used instead of placeholders.
-- [x] Lint, production build, browser interactions, console, and responsive checks passed.
+- P3: a future version could let users write or pin their own notes. This was intentionally excluded from the current
+  visual redesign because the existing API does not expose note persistence.
 
 final result: passed
